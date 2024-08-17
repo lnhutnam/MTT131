@@ -1,0 +1,363 @@
+% Input configuration
+\usepackage[utf8]{inputenc}
+
+% -- support vietnamese --
+\usepackage[vietnamese]{babel}
+% -- support english --
+% \usepackage[english]{babel}
+% ----------------------------------------------
+
+% For math
+\usepackage{amsmath,amssymb}
+\usepackage{mathtools}
+\usepackage{amsthm}
+\newcommand{\N}{\mathbb{N}}
+\newcommand{\Z}{\mathbb{Z}}
+\newcommand{\R}{\mathbb{R}}
+\newcommand{\F}{\mathbb{F}}
+% ----------------------------------------------
+
+% For images, colors
+\usepackage{graphicx}
+\usepackage{color,xcolor}
+% ----------------------------------------------
+
+% For captioning
+\usepackage{caption}
+\setbeamertemplate{caption}[numbered]
+% ----------------------------------------------
+
+% For tables
+\usepackage{booktabs}
+% ----------------------------------------------
+
+% For hyper references between sections
+\usepackage{hyperref}
+% ----------------------------------------------
+
+% For texts, algorithm and codes
+\usepackage{ulem}
+\usepackage{algorithm}
+\usepackage{listings}
+% ----------------------------------------------
+
+% For tikz
+\usepackage{framed}
+\usepackage{tikz}
+\usepackage{pgf}
+\usetikzlibrary{calc,trees,positioning,arrows,chains,shapes.geometric,%
+decorations.pathreplacing,decorations.pathmorphing,shapes,%
+matrix,shapes.symbols}
+\pgfmathsetseed{1} % To have predictable results
+% Define a background layer, in which the parchment shape is drawn
+\definecolor{doge}{HTML}{0065BD}
+\pgfdeclarelayer{background}
+\pgfsetlayers{background, main}
+
+% Macro to draw the shape behind the text, when it fits completly in the page
+% define styles for the normal border and the torn border
+\tikzset{
+  normal border/.style={doge!40!black!10, decorate, 
+     decoration={random steps, segment length=2.5cm, amplitude=.7mm}},
+  torn border/.style={doge!40!black!5, decorate, 
+     decoration={random steps, segment length=.5cm, amplitude=1.7mm}}}
+
+% Macro to draw the shape behind the text, when it fits completly in the
+% page
+\def\parchmentframe#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};  % Draw the text of the node
+  \begin{pgfonlayer}{background}  % Draw the shape behind
+  \fill[normal border] 
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when the text will continue in next page
+\def\parchmentframetop#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};    % Draw the text of the node
+  \begin{pgfonlayer}{background}    
+  \fill[normal border]              % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]                % Add the torn lower border
+        ($(A.south east)-(0,.2)$) -- ($(A.south west)-(0,.2)$) -- 
+        ($(A.south west)+(0,.2)$) -- ($(A.south east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when the text continues from previous page
+\def\parchmentframebottom#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};   % Draw the text of the node
+  \begin{pgfonlayer}{background}   
+  \fill[normal border]             % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]               % Add the torn upper border
+        ($(A.north east)-(0,.2)$) -- ($(A.north west)-(0,.2)$) -- 
+        ($(A.north west)+(0,.2)$) -- ($(A.north east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+% Macro to draw the shape, when both the text continues from previous page
+% and it will continue in next page
+\def\parchmentframemiddle#1{
+\tikz{
+  \node[inner sep=2em] (A) {#1};   % Draw the text of the node
+  \begin{pgfonlayer}{background}   
+  \fill[normal border]             % Draw the ``complete shape'' behind
+        (A.south east) -- (A.south west) -- 
+        (A.north west) -- (A.north east) -- cycle;
+  \fill[torn border]               % Add the torn lower border
+        ($(A.south east)-(0,.2)$) -- ($(A.south west)-(0,.2)$) -- 
+        ($(A.south west)+(0,.2)$) -- ($(A.south east)+(0,.2)$) -- cycle;
+  \fill[torn border]               % Add the torn upper border
+        ($(A.north east)-(0,.2)$) -- ($(A.north west)-(0,.2)$) -- 
+        ($(A.north west)+(0,.2)$) -- ($(A.north east)+(0,.2)$) -- cycle;
+  \end{pgfonlayer}}}
+
+\newenvironment{parchment}[1][Example]{%
+  \def\FrameCommand{\parchmentframe}%
+  \def\FirstFrameCommand{\parchmentframetop}%
+  \def\LastFrameCommand{\parchmentframebottom}%
+  \def\MidFrameCommand{\parchmentframemiddle}%
+  \vskip\baselineskip
+  \MakeFramed {\FrameRestore}
+  \noindent\tikz\node[inner sep=1ex, draw=white,fill=doge!30, 
+          anchor=west, overlay] at (0em, 2em) {\sffamily#1};\par}%
+{\endMakeFramed}
+% ----------------------------------------------
+
+% Beamer theme configuration
+\mode<presentation>{
+    \usetheme{default}
+    % Boadilla CambridgeUS
+    % default Antibes Berlin Copenhagen
+    % Madrid Montpelier Ilmenau Malmoe
+    % Berkeley Singapore Warsaw
+    % \usecolortheme{doge}
+    % beetle, beaver, orchid, whale, dolphin
+    \useoutertheme{infolines}
+    % infolines miniframes shadow sidebar smoothbars smoothtree split tree
+    \useinnertheme{circles}
+    % circles, rectanges, rounded, inmargin
+}
+
+\setbeamertemplate{blocks}[rounded][shadow]
+\setbeamercolor{block title}{bg=doge!40,fg=white}
+\newcommand{\reditem}[1]{\setbeamercolor{item}{fg=red}\item #1}
+\newcommand*{\Scale}[2][4]{\scalebox{#1}{\ensuremath{#2}}}
+\renewcommand\textbullet{\ensuremath{\bullet}}
+% ----------------------------------------------
+
+% For flow chart and codes
+% Flow chart settings
+\tikzset{
+    >=stealth',
+    punktchain/.style={
+        rectangle, 
+        rounded corners, 
+        % fill=black!10,
+        draw=white, very thick,
+        text width=6em,
+        minimum height=2em, 
+        text centered, 
+        on chain
+    },
+    largepunktchain/.style={
+        rectangle,
+        rounded corners,
+        draw=white, very thick,
+        text width=10em,
+        minimum height=2em,
+        on chain
+    },
+    line/.style={draw, thick, <-},
+    element/.style={
+        tape,
+        top color=white,
+        bottom color=blue!50!black!60!,
+        minimum width=6em,
+        draw=blue!40!black!90, very thick,
+        text width=6em, 
+        minimum height=2em, 
+        text centered, 
+        on chain
+    },
+    every join/.style={->, thick,shorten >=1pt},
+    decoration={brace},
+    tuborg/.style={decorate},
+    tubnode/.style={midway, right=2pt},
+    font={\fontsize{10pt}{12}\selectfont},
+}
+
+% code settings
+\lstset{
+    language=C++,
+    basicstyle=\ttfamily\footnotesize,
+    keywordstyle=\color{red},
+    breaklines=true,
+    xleftmargin=2em,
+    numbers=left,
+    numberstyle=\color[RGB]{222,155,81},
+    frame=leftline,
+    tabsize=4,
+    breakatwhitespace=false,
+    showspaces=false,               
+    showstringspaces=false,
+    showtabs=false,
+    morekeywords={Str, Num, List},
+}
+% ---------------------------------------------------------------------
+% title page
+% Sử dụng cho bảo vệ luận văn
+% \makeatletter
+% \newcommand\titlegraphicii[1]{\def\inserttitlegraphicii{#1}}
+% \titlegraphicii{}
+% \setbeamertemplate{title page}
+% {
+%     \vskip-0.5cm%
+%     \begin{beamercolorbox}[sep=14pt,center]{institute}
+%           \usebeamerfont{institute}\insertinstitute
+%     \end{beamercolorbox}    
+%    {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\hfill\inserttitlegraphicii\par}
+%   \begin{centering}
+%     \begin{beamercolorbox}[sep=8pt,center]{title}
+%       \usebeamerfont{title}\inserttitle\par%
+%       \vskip0.5em
+%       \ifx\insertsubtitle\@empty%
+%       \else%
+%         \vskip0.25em%
+%         {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+%       \fi%     
+%         \end{beamercolorbox}%
+%         \begin{beamercolorbox}[sep=8pt,center]{author}
+%           \usebeamerfont{author}\insertauthor
+%         \end{beamercolorbox}\vskip0.5em
+%         % \vskip1em\par
+%         \begin{beamercolorbox}[sep=8pt,center]{date}
+%           \usebeamerfont{date}\insertdate
+%         \end{beamercolorbox}%
+%       \end{centering}
+%   %\vfill
+% }
+% Sử dụng để trình bày
+\makeatletter
+\newcommand\titlegraphicii[1]{\def\inserttitlegraphicii{#1}}
+\titlegraphicii{}
+\setbeamertemplate{title page}
+{
+    \vskip-0.5cm%
+   {\usebeamercolor[fg]{titlegraphic}\inserttitlegraphic\hfill\inserttitlegraphicii\par}
+  \begin{centering}
+    \begin{beamercolorbox}[sep=8pt,center]{title}
+      \usebeamerfont{title}\inserttitle\par%
+      \vskip0.5em
+      \ifx\insertsubtitle\@empty%
+      \else%
+        \vskip0.25em%
+        {\usebeamerfont{subtitle}\usebeamercolor[fg]{subtitle}\insertsubtitle\par}%
+      \fi%     
+        \end{beamercolorbox}%
+        \begin{beamercolorbox}[sep=8pt,center]{author}
+          \usebeamerfont{author}\insertauthor
+        \end{beamercolorbox}\vskip0.5em
+        \begin{beamercolorbox}[sep=14pt,center]{institute}
+          \usebeamerfont{institute}\insertinstitute
+        \end{beamercolorbox}    
+        \vskip1em\par
+        \begin{beamercolorbox}[sep=8pt,center]{date}
+          \usebeamerfont{date}\insertdate
+        \end{beamercolorbox}%
+      \end{centering}
+  %\vfill
+}
+
+\makeatother
+\author{Presented by Author}
+\title{Presentation Title}
+\subtitle{Presentation Subtile}
+\institute{Department \\ University}
+\date{\today}
+
+% frame title
+% https://tex.stackexchange.com/questions/231554/set-beamercolorbox-height-automatically-to-sister-beamercolorbox-on-frametitle
+\makeatletter
+\setbeamertemplate{frametitle}{%
+    \setbeamercolor{frametitle}{bg=doge, fg=white}
+    \nointerlineskip%
+    \usebeamerfont{headline}%
+    \nointerlineskip%
+    \hbox{\hspace{-0.09\paperwidth}%
+    \begin{beamercolorbox}[wd=0.1\paperwidth,vmode]{secsubsec}%
+        \newdimen\titleheight%
+        \setbox0=\hbox{\usebeamerfont*{frametitle}\insertframetitle}
+        \titleheight=\ht0 \advance\titleheight by \dp0%
+        \vskip-.5pt%
+        \vskip\titleheight%
+        \ifx\insertframesubtitle\@empty%
+          \strut\par%
+        \else%
+          \setbox0=\hbox{\usebeamerfont*{framesubtitle}\insertframesubtitle}%
+          \titleheight=\ht0 \advance\titleheight by \dp0%
+          \par{%
+              \vskip\titleheight%
+              \strut\par%
+              \vskip-.65ex%
+          }%
+        \fi%
+        \usebeamerfont{headline}%
+        \vskip.5ex%
+    \end{beamercolorbox}%
+    \begin{beamercolorbox}[wd=0.99\paperwidth,leftskip=.3cm,rightskip=.3cm plus1fil,vmode]{frametitle}%
+        \vskip.5ex%
+        \usebeamerfont*{frametitle}\insertframetitle%
+        \ifx\insertframesubtitle\@empty%
+          \strut\par%
+        \else%
+          \par{\usebeamerfont*{framesubtitle}{\usebeamercolor[fg]{framesubtitle}\insertframesubtitle}\strut\par}%
+        \fi%%
+        \usebeamerfont{headline}%
+        \vskip.5ex%
+    \end{beamercolorbox}%
+    }
+    \nointerlineskip
+}
+
+% footer
+\makeatother
+\setbeamertemplate{footline}
+{
+  \leavevmode%
+  \hbox{%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{author in head/foot}%
+    \usebeamerfont{author in head/foot}\insertshortauthor
+  \end{beamercolorbox}%
+  \begin{beamercolorbox}[wd=.4\paperwidth,ht=2.25ex,dp=1ex,center]{title in head/foot}%
+    \usebeamerfont{title in head/foot}\insertshorttitle
+  \end{beamercolorbox}}%
+  \begin{beamercolorbox}[wd=.3\paperwidth,ht=2.25ex,dp=1ex,center]{pagenum in head/foot}%
+    \insertframenumber{} / \inserttotalframenumber\hspace*{1ex}
+  \end{beamercolorbox}%
+  \vskip0pt%
+}
+\makeatletter
+\setbeamertemplate{navigation symbols}{}
+
+\setbeamertemplate{section page}
+{
+    \begin{centering}
+    \begin{beamercolorbox}[sep=12pt,center]{part title}
+    \usebeamerfont{section title}\insertsection\par
+    \end{beamercolorbox}
+    \end{centering}
+}
+
+\AtBeginSection[]
+{
+    \setbeamertemplate{navigation symbols}{}
+    \frame[plain,c,noframenumbering]{
+        \sectionpage
+        \tableofcontents[currentsection,subsectionstyle=hide]}
+    \setbeamertemplate{navigation symbols}{\normalsize}
+}
